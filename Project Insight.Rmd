@@ -1,0 +1,124 @@
+---
+title: "Project Insight"
+author: "Mackenzie Bridges"
+date: "2025-06-08"
+output:
+  pdf_document: default
+---
+
+# PROJECT INSIGHT:
+
+## This project utilizes pivotal information gathered by S.H.I.E.L.D's top agents. This information, compiled into dataset PROJECT INSIGHT, consists of six distinct variables. The research in this paper will be vital to the success of the Avengers and their allied forces.
+
+### The **Locations** variable lists all names of locations within the Marvel Universe.
+
+### The **Superhero Activity** variable lists the annual count of incidents involving superheroes.
+
+### The **Villain Activity** variable lists the annual count of incidents involving villains.
+
+### The **Mystical Arts** variable lists the latest annual counts of incidents involving mystical arts.
+
+### The **Advanced Tech** variable shows the concentration of advanced technology, measured per 100 square feet.
+
+### The **Infinity Stones** variable shows the presence of of an Infinity Stone, or lack thereof.
+
+```{r}
+install.packages("RColorBrewer")
+install.packages('dplyr')
+library(RColorBrewer)
+library(readr)
+library(dplyr)
+
+project.insight=read.csv("http://datasets.barrymonk.com/MATH3440/MCU.csv")
+
+```
+
+### Find the five number summary and the mean for the level of superhero activity across all locations.
+
+```{r}
+summary(project.insight$superhero_activity)
+mean(project.insight$superhero_activity)
+```
+
+*We can see this code chunk displays the five number summary and then the mean for Superhero Activity. The five number summary ranges between 31.31 and 120.81.*
+
+### Compare the 80th percentiles of villain activity and superhero activity. Which is more spread out?
+
+```{r}
+quantile(project.insight$villain_activity, 0.80)
+quantile(project.insight$superhero_activity, 0.80)
+```
+
+*Given the results shown, Superhero Activity has a more spread out 80th percentile based on the provided data.*
+
+### Construct a histogram and describe the shape of the advanced tech measurements.
+
+```{r}
+hist(project.insight$advanced_tech, main= "Advanced Tech Histogram",
+    xlab = "", col= brewer.pal(n=4, name = "Pastel1"), las=2)
+```
+
+*Using the data from Advanced Tech to make a histogram, we can see that it has a right skewed distribution. We know this because the tail is longer to the right.*
+
+### Use a horizontal boxplot to identify whether there are any outliers present in the distribution of advanced tech measurements.
+
+```{r}
+boxplot(project.insight$advanced_tech, main= "Advanced Tech Measurements Boxplot", 
+        horizontal = TRUE, col="dodgerblue")
+```
+
+*Based on the boxplot created using data from the Advanced Tech variable, we can see there is one outlier outside the boxplot.*
+
+### Create a barplot displaying the frequency of incidents involving mystical arts relative to their location.
+
+```{r}
+par(mar=c(7,6,4,4) + 0.1)
+barplot(project.insight$mystical_arts, names.arg = project.insight$location,
+        main = "Frequency of Mystical Arts Relative to their Locations",
+        xlab = "Mystical Arts Count", ylab = "", las= 1, horiz = TRUE,
+        col = "Blue", xlim = c(0, 60), cex.names = 0.7, cex.axis = 0.7)
+```
+
+*Here we can see a barplot showing the frequency of incidents involving mystical arts. On the bottom of the graph, the locations for each incident are listed.*
+
+### Create a random sample without replacement of five locations and create a pie chart to visualize the concentration of advanced technology relative to the sample.
+
+```{r}
+rand.location<- sample(project.insight$location, 5, replace = FALSE)
+Nlocation<- filter(project.insight, location %in% rand.location)
+pie(Nlocation$superhero_activity, labels = Nlocation$location, main = 'Random
+    Locations with Respective Advanced Technologies', col = brewer.pal(n=5, name="Accent"))
+```
+
+*Here we see a pie chart of five random locations and the concentrations of advanced technology. The filter command is used to pull the advanced technology for the randomly chosen locations.*
+
+### Find the new 80th percentile with the additional annual report of villain activity Agent Coulson has provided.
+
+```{r}
+new_villain<- c(127.48 + project.insight$villain_activity)
+quantile(new_villain, 0.80)
+```
+
+*Agent Coulson provided a new annual report of villain activity. Adding it the original Villain Activity, we can calculate the new 80th percentile.*
+
+### Create two new data sets that are comprised of locations with no infinity stones, and locations that have infinity stones.
+
+```{r}
+stone<- filter(project.insight, project.insight$infinity_stones == '1')
+nostone<- filter(project.insight, project.insight$infinity_stones == '0')
+```
+
+*Here we use the filter command again to create two new data sets that separate the locations depending on the presence of an infinity stone or the lack of an infinity stone.*
+
+### Create a scatterplot of the superhero activity vs villain activity in locations without Infinity Stones.
+
+```{r}
+plot(nostone$superhero_activity, nostone$villain_activity, pch = 16,
+     las= 1, xlab = 'Superhero Activity', ylab = 'Villain Activity', 
+     xlim = c(25,60), ylim = c(0,50))
+cor(nostone$superhero_activity, nostone$villain_activity)
+```
+
+*Using the nostone data set, we are able to create a scatterplot showing the locations with superhero activity and villain activity. This scatterplot has a positive linear association, suggesting as superhero activity increases, villain activity does as well. The correlation appears to be moderate to strong, though the spread of some points does suggest variability.*
+
+### The Project Insight report analyzes Marvel Universe data to aid the Avengers. It examines Superhero Activity (mean 57.18, range 31.31–120.81), Villain Activity, Mystical Arts, Advanced Tech, Infinity Stones, and Locations. Superhero activity’s 80th percentile (84.707) is more spread out than villain activity’s (72.3562). Visualizations show advanced tech’s right-skewed distribution with one outlier, mystical arts frequencies by location, and a pie chart of advanced tech for five random locations. A new villain activity 80th percentile (199.8362) and a scatterplot of superhero vs. villain activity in non-Infinity Stone locations (correlation 0.7632684) highlight key trends.
